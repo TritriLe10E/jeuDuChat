@@ -39,7 +39,31 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    return "Not implemented", 501
+    formulaire_connexion = (request.get_json())
+
+    #on récupère l'email
+    email = formulaire_connexion["email"]
+
+    sql_request = f'''SELECT * FROM players WHERE players_email = "{email}"'''
+    players_avec_cette_email = sql_select(sql_request)
+
+    if len(players_avec_cette_email) == 0:
+        #L'email existe
+        return "l'e-mail n'existe pas", 404
+
+    print(players_avec_cette_email)
+
+    password = formulaire_connexion["password"]
+    mot_de_passe = players_avec_cette_email[0]["players_password"]
+    id_player = players_avec_cette_email[0]["players_id"]
+    dictionnary = {"id" : id_player}
+    print(players_avec_cette_email)
+    if password == mot_de_passe:
+        return jsonify(dictionnary), 200
+    else:
+        return "Connexion impossible", 404
+
+
 
 
 @app.route('/signup', methods=['POST'])
