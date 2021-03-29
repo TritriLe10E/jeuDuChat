@@ -158,5 +158,16 @@ def get_free_cats():
 
 @app.route('/cats/<int:cats_id>', methods=['PATCH', 'DELETE'])
 def update_cat(cats_id):
-    return "Not implemented", 501
+    if request.method == 'PATCH':
+        adopteunchat = (request.get_json())
+        roomsid = adopteunchat["rooms_id"]
+
+        sql_request = f'''UPDATE cats SET rooms_id = {roomsid} WHERE cats_id = {cats_id}'''
+        sql_update(sql_request)
+        return "GG un chat de plus", 200
+    elif request.method == 'DELETE':
+
+        sql_request = f'''UPDATE cats SET rooms_id = NULL WHERE cats_id = "{cats_id}"'''
+        sql_update(sql_request)
+        return "Un chat de moins", 200
 
