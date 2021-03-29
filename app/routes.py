@@ -64,8 +64,6 @@ def login():
         return "Connexion impossible", 404
 
 
-
-
 @app.route('/signup', methods=['POST'])
 def sign_up():
     #on récupère le json envoyé par le client
@@ -88,9 +86,12 @@ def sign_up():
     "{formulaire_inscription["email"]}", 
     "{formulaire_inscription["password"]}")'''
 
-    sql_insert(sql_request)
+    players_id = sql_insert(sql_request)
+
+    add_room(players_id, 0, 0, formulaire_inscription["seed"])
 
     return "OK", 200
+
 
 
 @app.route('/users/<int:players_id>/rooms', methods=['GET', 'POST'])
@@ -121,7 +122,21 @@ def add_room_request(players_id, request_json):
 
 
 def add_room(players_id, pos_x, pos_y, seed):
-    return "Not implemented", 501
+    sql_request = f'''SELECT * FROM rooms 
+    WHERE rooms.players_id = "{players_id}" 
+    AND rooms.rooms_position_x = "{pos_x}" 
+    AND rooms.rooms_position_y = "{pos_y}"'''
+    checkroom = sql_select(sql_request)
+    if len(checkroom) > 0:
+
+        return "il y a deja une room ici", 404
+    else:
+        sql_request = f'''INSERT INTO rooms (players_id, rooms_position_x, rooms_position_y, rooms_seed)
+        VALUES("{players_id}", "{pos_x}", "{pos_y}", "{seed}")'''
+        room_build = sql_insert(sql_request)
+        return jsonify({"id": room_build}), 200
+
+
 
 
 @app.route('/users/<int:players_id>/rooms/<int:rooms_id>', methods=['DELETE'])
