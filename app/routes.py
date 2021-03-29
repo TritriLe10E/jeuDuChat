@@ -137,11 +137,16 @@ def add_room(players_id, pos_x, pos_y, seed):
         return jsonify({"id": room_build}), 200
 
 
-
-
 @app.route('/users/<int:players_id>/rooms/<int:rooms_id>', methods=['DELETE'])
 def delete_room(players_id, rooms_id):
-    return "Not implemented", 501
+    sql_request = f'''SELECT * FROM cats WHERE cats.rooms_id = "{rooms_id}"'''
+    checkcat = sql_select(sql_request)
+    if len(checkcat) > 0:
+        return "il y a un  chat ici", 404
+    else:
+        sql_request = f'''DELETE FROM rooms WHERE rooms_id = "{rooms_id}" AND rooms.players_id = "{players_id}"'''
+        sql_delete(sql_request)
+        return "la salle a été supprimée", 200
 
 
 @app.route('/cats', methods=['GET'])
